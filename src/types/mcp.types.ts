@@ -227,4 +227,55 @@ export interface GetProductsParams extends AuthParams {
   wcConsumerSecret?: string;
 }
 
+// WooCommerce Reports / Analytics
+export type DateRangePreset = 'last_7_days' | 'last_30_days' | 'mtd' | 'qtd' | 'ytd' | 'custom';
+
+export interface GetRevenueStatsParams extends AuthParams {
+  range?: DateRangePreset;
+  after?: string;  // ISO 8601
+  before?: string; // ISO 8601
+  interval?: 'day' | 'week' | 'month';
+  wcConsumerKey?: string;
+  wcConsumerSecret?: string;
+}
+
+export interface GetTopProductsParams extends AuthParams {
+  range?: DateRangePreset;
+  after?: string;  // ISO 8601
+  before?: string; // ISO 8601
+  limit?: number;  // default 10
+  wcConsumerKey?: string;
+  wcConsumerSecret?: string;
+}
+
+export interface GetOrdersStatsParams extends AuthParams {
+  range?: DateRangePreset;
+  after?: string;
+  before?: string;
+  interval?: 'day' | 'week' | 'month';
+  wcConsumerKey?: string;
+  wcConsumerSecret?: string;
+}
+
+export interface GetProductStatsParams extends AuthParams {
+  productIds?: number[];
+  range?: DateRangePreset;
+  after?: string;
+  before?: string;
+  interval?: 'day' | 'week' | 'month';
+  wcConsumerKey?: string;
+  wcConsumerSecret?: string;
+}
+
+export interface AnalyzeSalesParams extends AuthParams {
+  range?: DateRangePreset;
+  after?: string;
+  before?: string;
+  interval?: 'day' | 'week' | 'month';
+  compareTo?: 'previous_period' | 'previous_year';
+  topN?: number;
+  wcConsumerKey?: string;
+  wcConsumerSecret?: string;
+}
+
 

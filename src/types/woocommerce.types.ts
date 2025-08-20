@@ -24,4 +24,54 @@ export interface WCProduct {
   stock_status?: 'instock' | 'outofstock' | 'onbackorder';
 }
 
+export interface WCRevenueTotals {
+  total_sales?: number;
+  net_revenue?: number;
+  orders_count?: number;
+  items_sold?: number;
+  refunds?: number;
+  taxes?: number;
+  shipping?: number;
+  discounts?: number;
+}
+
+export interface WCRevenueIntervalPoint extends WCRevenueTotals {
+  date: string; // ISO date
+}
+
+export interface WCRevenueStats {
+  totals: WCRevenueTotals;
+  intervals: WCRevenueIntervalPoint[];
+}
+
+export interface WCTopProductItem {
+  product_id: number;
+  name?: string;
+  quantity: number;
+  total: number; // revenue
+}
+
+export interface WCOrdersTotals {
+  orders_count?: number;
+  avg_order_value?: number;
+  net_revenue?: number;
+  refunds?: number;
+}
+
+export interface WCOrdersIntervalPoint extends WCOrdersTotals {
+  date: string;
+}
+
+export interface WCOrdersStats {
+  totals: WCOrdersTotals;
+  intervals: WCOrdersIntervalPoint[];
+}
+
+export interface WCProductStatsPoint {
+  date: string;
+  product_id: number;
+  quantity: number;
+  net_revenue: number;
+}
+
 

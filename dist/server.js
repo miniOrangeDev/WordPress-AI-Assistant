@@ -57,6 +57,130 @@ export class WordPressMCPServer {
                 return { content: [{ type: 'text', text: handled.message }], isError: true };
             }
         });
+        // get_orders_stats
+        this.server.tool('get_orders_stats', {
+            range: z.enum(['last_7_days', 'last_30_days', 'mtd', 'qtd', 'ytd', 'custom']).optional(),
+            after: z.string().optional(),
+            before: z.string().optional(),
+            interval: z.enum(['day', 'week', 'month']).optional(),
+            siteUrl: z.string().url().optional(),
+            wcConsumerKey: z.string().optional(),
+            wcConsumerSecret: z.string().optional(),
+        }, async (args) => {
+            try {
+                const params = args;
+                const credentials = await new AuthService().authenticateWooCommerce(params);
+                const { WooCommerceReportsService } = await import('./services/woocommerce-reports.service.js');
+                const svc = new WooCommerceReportsService(credentials);
+                const stats = await svc.getOrdersStats({ range: params.range, after: params.after, before: params.before, interval: params.interval });
+                return { content: [{ type: 'text', text: JSON.stringify(stats) }] };
+            }
+            catch (error) {
+                const handled = ErrorHandler.handle(error);
+                return { content: [{ type: 'text', text: handled.message }], isError: true };
+            }
+        });
+        // get_product_stats
+        this.server.tool('get_product_stats', {
+            productIds: z.array(z.number()).optional(),
+            range: z.enum(['last_7_days', 'last_30_days', 'mtd', 'qtd', 'ytd', 'custom']).optional(),
+            after: z.string().optional(),
+            before: z.string().optional(),
+            interval: z.enum(['day', 'week', 'month']).optional(),
+            siteUrl: z.string().url().optional(),
+            wcConsumerKey: z.string().optional(),
+            wcConsumerSecret: z.string().optional(),
+        }, async (args) => {
+            try {
+                const params = args;
+                const credentials = await new AuthService().authenticateWooCommerce(params);
+                const { WooCommerceReportsService } = await import('./services/woocommerce-reports.service.js');
+                const svc = new WooCommerceReportsService(credentials);
+                const stats = await svc.getProductStats({ productIds: params.productIds, range: params.range, after: params.after, before: params.before, interval: params.interval });
+                return { content: [{ type: 'text', text: JSON.stringify(stats) }] };
+            }
+            catch (error) {
+                const handled = ErrorHandler.handle(error);
+                return { content: [{ type: 'text', text: handled.message }], isError: true };
+            }
+        });
+        // analyze_sales (high-level KPIs)
+        this.server.tool('analyze_sales', {
+            range: z.enum(['last_7_days', 'last_30_days', 'mtd', 'qtd', 'ytd', 'custom']).optional(),
+            after: z.string().optional(),
+            before: z.string().optional(),
+            interval: z.enum(['day', 'week', 'month']).optional(),
+            compareTo: z.enum(['previous_period', 'previous_year']).optional(),
+            topN: z.number().optional(),
+            siteUrl: z.string().url().optional(),
+            wcConsumerKey: z.string().optional(),
+            wcConsumerSecret: z.string().optional(),
+        }, async (args) => {
+            try {
+                const params = args;
+                const credentials = await new AuthService().authenticateWooCommerce(params);
+                const { WooCommerceReportsService } = await import('./services/woocommerce-reports.service.js');
+                const svc = new WooCommerceReportsService(credentials);
+                const rev = await svc.getRevenueStats({ range: params.range, after: params.after, before: params.before, interval: params.interval });
+                const orders = await svc.getOrdersStats({ range: params.range, after: params.after, before: params.before, interval: params.interval });
+                const { computeGrowth } = await import('./utils/analytics.utils.js');
+                const revenue = Number(rev?.totals?.net_revenue ?? rev?.totals?.total_sales ?? 0);
+                const orderCount = Number(orders?.totals?.orders_count ?? 0);
+                const aov = orderCount ? revenue / orderCount : 0;
+                const response = { revenue, orderCount, aov, intervals: rev.intervals };
+                return { content: [{ type: 'text', text: JSON.stringify(response) }] };
+            }
+            catch (error) {
+                const handled = ErrorHandler.handle(error);
+                return { content: [{ type: 'text', text: handled.message }], isError: true };
+            }
+        });
+        // get_revenue_stats
+        this.server.tool('get_revenue_stats', {
+            range: z.enum(['last_7_days', 'last_30_days', 'mtd', 'qtd', 'ytd', 'custom']).optional(),
+            after: z.string().optional(),
+            before: z.string().optional(),
+            interval: z.enum(['day', 'week', 'month']).optional(),
+            siteUrl: z.string().url().optional(),
+            wcConsumerKey: z.string().optional(),
+            wcConsumerSecret: z.string().optional(),
+        }, async (args) => {
+            try {
+                const params = args;
+                const credentials = await new AuthService().authenticateWooCommerce(params);
+                const { WooCommerceReportsService } = await import('./services/woocommerce-reports.service.js');
+                const svc = new WooCommerceReportsService(credentials);
+                const stats = await svc.getRevenueStats({ range: params.range, after: params.after, before: params.before, interval: params.interval });
+                return { content: [{ type: 'text', text: JSON.stringify(stats) }] };
+            }
+            catch (error) {
+                const handled = ErrorHandler.handle(error);
+                return { content: [{ type: 'text', text: handled.message }], isError: true };
+            }
+        });
+        // get_top_products
+        this.server.tool('get_top_products', {
+            range: z.enum(['last_7_days', 'last_30_days', 'mtd', 'qtd', 'ytd', 'custom']).optional(),
+            after: z.string().optional(),
+            before: z.string().optional(),
+            limit: z.number().optional(),
+            siteUrl: z.string().url().optional(),
+            wcConsumerKey: z.string().optional(),
+            wcConsumerSecret: z.string().optional(),
+        }, async (args) => {
+            try {
+                const params = args;
+                const credentials = await new AuthService().authenticateWooCommerce(params);
+                const { WooCommerceReportsService } = await import('./services/woocommerce-reports.service.js');
+                const svc = new WooCommerceReportsService(credentials);
+                const rows = await svc.getTopProducts({ range: params.range, after: params.after, before: params.before, limit: params.limit });
+                return { content: [{ type: 'text', text: JSON.stringify(rows) }] };
+            }
+            catch (error) {
+                const handled = ErrorHandler.handle(error);
+                return { content: [{ type: 'text', text: handled.message }], isError: true };
+            }
+        });
         // WooCommerce: create_product
         this.server.tool('create_product', {
             name: z.string().min(1),
